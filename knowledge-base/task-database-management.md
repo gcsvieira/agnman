@@ -1,7 +1,7 @@
 ---
 id: task-database-management
 type: task
-status: in-progress
+status: completed
 tags: ["#task", "#cli"]
 links: ["[[MOC-tasks]]"]
 ---
@@ -10,10 +10,10 @@ links: ["[[MOC-tasks]]"]
 
 ## Status
 - [x] Implement `skill/rule list` to view global DB.
-- [ ] Support `skill/rule list <pattern>` for partial name matching (search).
-- [ ] Standardize `list` output to one-line names by default.
-- [ ] Support `skill/rule list --tree` for hierarchical view.
-- [ ] Support combining search and tree view: `list <pattern> --tree`.
+- [x] Support `skill/rule list <pattern>` for partial name matching (search).
+- [x] Standardize `list` output to one-line names by default.
+- [x] Support `skill/rule list --tree` for hierarchical view.
+- [x] Support combining search and tree view: `list <pattern> --tree`.
 - [x] Implement `skill/rule edit <name>` to open in editor.
 - [x] Implement `skill/rule delete <name>` to remove from global DB.
 

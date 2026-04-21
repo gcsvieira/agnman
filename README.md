@@ -10,7 +10,8 @@ currently it supports google's antigravity and claude-code by verifying the exis
 
 - store your agent prompts, tools, and rules in a central location (`~/.local/share/agnman/`).
 - automatically detects `.agents/` and/or `.claude/` folders in your current project and links resources there.
-- at its core, it's just a lightweight and fast bash script.
+- at its core, it is a lightweight and fast bash script.
+- uses `tree` for hierarchical listing (optional).
 
 ## installation:
 ### automated (recommended):
@@ -40,7 +41,7 @@ manage modular agent capabilities (skills).
 - `agnman skill create --source <dir>`: moves a local skill folder to the global DB and replaces it with a symlink.
 - `agnman skill link <name>`: links a global skill into the current project.
 - `agnman skill unlink <name>`: removes the local symlink for a skill.
-- `agnman skill list`: lists all available global skills.
+- `agnman skill list [pattern] [--tree]`: lists global skills, optionally filtering by pattern or showing a tree view.
 - `agnman skill edit <name>`: opens the global skill folder in your default editor.
 - `agnman skill delete <name>`: removes the skill from the global DB.
 
@@ -49,7 +50,7 @@ manage system prompts and behavioral rules.
 - `agnman rule create --source <file>`: moves a local rule file to the global DB.
 - `agnman rule link <name>`: links a global rule into the current project's `rules/` folder.
 - `agnman rule unlink <name>`: removes the local symlink for a rule.
-- `agnman rule list`: lists all available global rules.
+- `agnman rule list [pattern] [--tree]`: lists global rules, optionally filtering by pattern or showing a tree view.
 - `agnman rule delete <name>`: removes the rule from the global DB.
 
 ## project architecture

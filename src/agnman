@@ -392,25 +392,41 @@ handle_edit() {
 
 handle_list() {
     local type="$1"
+    shift
     local dir=""
-    if [[ "$type" == "skill" ]]; then
-        dir="$SKILLS_DIR"
-    else
-        dir="$RULES_DIR"
-    fi
+    [[ "$type" == "skill" ]] && dir="$SKILLS_DIR" || dir="$RULES_DIR"
+
+    local pattern=""
+    local tree_view=false
+
+    while [[ "$#" -gt 0 ]]; do
+        case $1 in
+            --tree) tree_view=true ;;
+            *) pattern="$1" ;;
+        esac
+        shift
+    done
 
     log_info "Global ${type}s registered in $dir:"
     if [[ ! -d "$dir" ]] || [[ -z "$(ls -A "$dir")" ]]; then
         echo "  (none)"
-    else
+        return
+    fi
+
+    if [[ "$tree_view" == true ]]; then
         if command -v tree >/dev/null 2>&1; then
-            tree -C "$dir" | sed 's/^/  /'
+            if [[ -n "$pattern" ]]; then
+                tree -C -P "*${pattern}*" "$dir" | sed 's/^/  /'
+            else
+                tree -C "$dir" | sed 's/^/  /'
+            fi
         else
-            # Simple fallback for tree-like view
-            ls -R "$dir" | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/  /'
-            # Actually, let's just use find for a cleaner look if tree is missing
-            find "$dir" -maxdepth 2 -not -path '*/.*' | sed "s|$dir/||" | grep -v "^$" | sed 's|[^/]*/|  |g' | sed 's|^|  - |'
+            log_error "'tree' command not found. Falling back to simple list."
+            ls -1 "$dir" | grep "$pattern" | sed 's/^/  - /'
         fi
+    else
+        # Standard one-line output
+        ls -1 "$dir" | grep "$pattern" | sed 's/^/  - /'
     fi
 }
 
