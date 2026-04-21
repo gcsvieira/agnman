@@ -2,7 +2,7 @@
 id: installation
 type: knowledge
 tags: ["#installation", "#path"]
-links: ["[[MAP]]", "[[AGENT]]"]
+links: ["[[MOC-usage]]"]
 ---
 
 # Installation & PATH Export

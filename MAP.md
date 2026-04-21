@@ -1,25 +1,24 @@
 ---
 id: MAP
 type: index
+updated: 2026-04-21
 ---
 
 # Project Map: agnman
 
-## Core Navigation
-- [[AGENT]] - Main project instructions and principles.
-- [[cli-architecture]] - CLI command structure and technical design.
+## Primary Hubs (MOCs)
 
-## Knowledge Base
-- [[cli-architecture]] - Argument parsing and path management.
-- [[installation]] - How to add agnman to your PATH.
+| MOC | Description | Last Updated |
+|-----|-------------|--------------|
+| [[MOC-tasks]] | Active development and todos | 2026-04-21 |
+| [[MOC-architecture]] | CLI design and technical specs | 2026-04-21 |
+| [[MOC-usage]] | Installation and user guides | 2026-04-21 |
 
-## Tasks
-- [[task-skill-management]] - Moving and linking skills globally.
-- [[task-rule-management]] - Moving and linking rules globally.
-- [[task-database-management]] - Listing, editing, and deleting from global DB.
-- [[task-improve-logs]] - Simplifying CLI output messages.
-- [[task-setup-script]] - Automating installation with setup.sh.
-- [[task-online-database]] - Remote skill/rule downloading capabilities.
+## Code Registry (src)
+
+| src path | Primary MOC | Notes |
+|----------|-------------|-------|
+| src/agnman | [[MOC-architecture]] | Main Bash script implementing the CLI |
 
 ## Skills & Rules
 - [[antigravity-rtk-rules]] - Token optimization rules.

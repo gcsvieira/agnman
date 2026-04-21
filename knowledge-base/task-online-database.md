@@ -3,7 +3,7 @@ id: task-online-database
 type: task
 status: todo
 tags: ["#task", "#feature", "#remote"]
-links: ["[[MAP]]", "[[cli-architecture]]"]
+links: ["[[MOC-tasks]]"]
 ---
 
 # Task: Online Resource Database

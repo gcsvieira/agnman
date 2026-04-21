@@ -3,7 +3,7 @@ id: task-improve-logs
 type: task
 status: todo
 tags: ["#task", "#ux"]
-links: ["[[MAP]]", "[[cli-architecture]]"]
+links: ["[[MOC-tasks]]"]
 ---
 
 # Task: Improve CLI Logging

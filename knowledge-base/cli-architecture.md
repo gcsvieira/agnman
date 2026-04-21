@@ -2,7 +2,7 @@
 id: cli-architecture
 type: knowledge
 tags: ["#architecture", "#cli"]
-links: ["[[MAP]]", "[[AGENT]]"]
+links: ["[[MOC-architecture]]"]
 ---
 
 # CLI Architecture: agnman

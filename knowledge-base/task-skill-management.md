@@ -3,7 +3,7 @@ id: task-skill-management
 type: task
 status: completed
 tags: ["#task", "#cli"]
-links: ["[[MAP]]", "[[cli-architecture]]"]
+links: ["[[MOC-tasks]]"]
 ---
 
 # Task: Skill Management (Create/Link)

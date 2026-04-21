@@ -3,7 +3,7 @@ id: task-rule-management
 type: task
 status: completed
 tags: ["#task", "#cli"]
-links: ["[[MAP]]", "[[cli-architecture]]"]
+links: ["[[MOC-tasks]]"]
 ---
 
 # Task: Implement Rule Management

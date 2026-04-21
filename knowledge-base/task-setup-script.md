@@ -3,7 +3,7 @@ id: task-setup-script
 type: task
 status: todo
 tags: ["#task", "#installation"]
-links: ["[[MAP]]", "[[installation]]"]
+links: ["[[MOC-tasks]]"]
 ---
 
 # Task: Create Setup Script
