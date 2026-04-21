@@ -36,6 +36,11 @@ the setup was designed to be idempotent, meaning you can run it multiple times.
 
 `agnman` follows a `noun verb` pattern for its commands.
 
+### typical workflow
+1.  create your skill or rule inside your current project (e.g., `.agents/skills/my-new-skill/`). add your `SKILL.md`, examples, and scripts.
+2.  once it's ready, run `agnman skill create --source .agents/skills/my-new-skill`. this moves it to your global database and replaces the local folder with a symlink.
+3.  in a different project, run `agnman skill link my-new-skill` to bring that capability into your project instantly.
+
 ### skill management
 manage modular agent capabilities (skills).
 - `agnman skill create --source <dir>`: moves a local skill folder to the global DB and replaces it with a symlink.
