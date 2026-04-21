@@ -12,15 +12,15 @@ mkdir -p "$SKILLS_DIR" "$RULES_DIR"
 # --- Utilities ---
 
 log_info() {
-    echo -e "\033[0;34m[INFO]\033[0m $1"
+    echo -e "$1"
 }
 
 log_error() {
-    echo -e "\033[0;31m[ERROR]\033[0m $1" >&2
+    echo -e "\033[0;31mError:\033[0m $1" >&2
 }
 
 log_success() {
-    echo -e "\033[0;32m[SUCCESS]\033[0m $1"
+    echo -e "\033[0;32m$1\033[0m"
 }
 
 get_agent_dirs() {
@@ -90,16 +90,16 @@ handle_skill_create() {
         exit 1
     fi
 
-    log_info "Moving $abs_source to $target_dir..."
+    log_info "Moving to global database..."
     mv "$abs_source" "$target_dir"
 
     echo -n "Do you want to replace the local directory with a symlink? [Y/n] "
     read -r response
     if [[ "$response" =~ ^[Yy]$ ]] || [[ -z "$response" ]]; then
         ln -s "$target_dir" "$abs_source"
-        log_success "Symlink created: $abs_source -> $target_dir"
+        log_success "Skill linked successfully."
     else
-        log_info "Skill moved to global DB, local directory removed."
+        log_info "Skill moved to global database."
     fi
 }
 
@@ -153,14 +153,14 @@ handle_skill_link() {
             log_error "File/folder already exists at $link_path. Overwrite? [y/N] "
             read -r response
             if [[ ! "$response" =~ ^[Yy]$ ]]; then
-                log_info "Skipping $link_path"
+                log_info "Skipped."
                 return
             fi
             rm -rf "$link_path"
         fi
 
         ln -s "$target_dir" "$link_path"
-        log_success "Linked $skill_name to $link_path"
+        log_success "Skill linked successfully."
     }
 
     if [[ "$selected_dir" == "both" ]]; then
@@ -204,16 +204,16 @@ handle_rule_create() {
         exit 1
     fi
 
-    log_info "Moving $abs_source to $target_path..."
+    log_info "Moving to global database..."
     mv "$abs_source" "$target_path"
 
     echo -n "Do you want to replace the local file/directory with a symlink? [Y/n] "
     read -r response
     if [[ "$response" =~ ^[Yy]$ ]] || [[ -z "$response" ]]; then
         ln -s "$target_path" "$abs_source"
-        log_success "Symlink created: $abs_source -> $target_path"
+        log_success "Rule linked successfully."
     else
-        log_info "Rule moved to global DB, local path removed."
+        log_info "Rule moved to global database."
     fi
 }
 
@@ -267,14 +267,14 @@ handle_rule_link() {
             log_error "File/folder already exists at $link_path. Overwrite? [y/N] "
             read -r response
             if [[ ! "$response" =~ ^[Yy]$ ]]; then
-                log_info "Skipping $link_path"
+                log_info "Skipped."
                 return
             fi
             rm -rf "$link_path"
         fi
 
         ln -s "$target_path" "$link_path"
-        log_success "Linked $rule_name to $link_path"
+        log_success "Rule linked successfully."
     }
 
     if [[ "$selected_dir" == "both" ]]; then
@@ -308,11 +308,11 @@ handle_unlink() {
         
         if [[ -L "$link_path" ]]; then
             rm "$link_path"
-            log_success "Unlinked ${type} '$name' from $link_path"
+            log_success "${type^} unlinked successfully."
         elif [[ -e "$link_path" ]]; then
-            log_error "$link_path exists but is not a symlink. Manual intervention required."
+            log_error "$link_path exists but is not a symlink."
         else
-            log_info "No link found at $link_path"
+            log_info "No symlink found."
         fi
     }
 
@@ -349,9 +349,9 @@ handle_delete() {
     read -r response
     if [[ "$response" =~ ^[Yy]$ ]]; then
         rm -rf "$target"
-        log_success "Global ${type} '$name' deleted."
+        log_success "${type^} deleted successfully."
     else
-        log_info "Deletion cancelled."
+        log_info "Cancelled."
     fi
 }
 
@@ -386,7 +386,7 @@ handle_edit() {
     fi
 
     local editor="${EDITOR:-vi}"
-    log_info "Opening $target with $editor..."
+    log_info "Opening in $editor..."
     $editor "$target"
 }
 

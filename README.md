@@ -11,21 +11,21 @@ It solves the problem of "folder hierarchy paralysis" and redundant manual copyi
 - **Zettelkasten-First**: Built with a strict separation of **Knowledge** (documentation and prompt design) and **Code** (CLI implementation).
 - **Bash-Powered**: Lightweight and fast, following the XDG Base Directory Specification.
 
-## 🛠️ Installation
+### Automated (Recommended)
+Run the bootstrap command directly:
+```bash
+curl -fsSL https://raw.githubusercontent.com/gcsvieira/agnman/main/setup.sh | bash
+```
+*Note: This will clone the repository to `~/.agnman` and link the CLI to your path.*
 
-To use `agnman` from anywhere, create a symlink to your local bin directory:
-
+### Manual
 1. **Create the symlink**:
    ```bash
    ln -s "$(realpath src/agnman)" ~/.local/bin/agnman
    ```
 
 2. **Ensure `~/.local/bin` is in your PATH**:
-   Add the following to your `~/.bashrc` or `~/.zshrc`:
-   ```bash
-   export PATH="$HOME/.local/bin:$PATH"
-   ```
-   Then reload: `source ~/.bashrc` (or `~/.zshrc`).
+   Add `export PATH="$HOME/.local/bin:$PATH"` to your shell config.
 
 ## 📖 Usage
 

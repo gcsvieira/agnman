@@ -1,7 +1,7 @@
 ---
 id: task-improve-logs
 type: task
-status: todo
+status: completed
 tags: ["#task", "#ux"]
 links: ["[[MOC-tasks]]"]
 ---

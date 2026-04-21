@@ -8,4 +8,5 @@ links: ["[[MAP]]"]
 # Architecture MOC
 
 ## Design Docs
-- [[cli-architecture]] - Core command structure and path management.
+- [[cli-architecture]] - Design and argument structure.
+- [[git-behavior]] - How Git handles symlinks vs content.

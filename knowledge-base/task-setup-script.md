@@ -1,7 +1,7 @@
 ---
 id: task-setup-script
 type: task
-status: todo
+status: completed
 tags: ["#task", "#installation"]
 links: ["[[MOC-tasks]]"]
 ---
