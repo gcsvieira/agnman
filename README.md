@@ -14,7 +14,7 @@ It solves the problem of "folder hierarchy paralysis" and redundant manual copyi
 ### Automated (Recommended)
 Run the bootstrap command directly:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/gcsvieira/agnman/main/setup.sh | bash
+curl -fsSL https://raw.githubusercontent.com/gcsvieira/agnman/master/setup.sh | bash
 ```
 *Note: This will clone the repository to `~/.agnman` and link the CLI to your path.*
 
