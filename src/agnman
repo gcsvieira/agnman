@@ -1,0 +1,382 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# --- Configuration ---
+DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/agnman"
+SKILLS_DIR="$DATA_DIR/skills"
+RULES_DIR="$DATA_DIR/rules"
+
+mkdir -p "$SKILLS_DIR" "$RULES_DIR"
+
+# --- Utilities ---
+
+log_info() {
+    echo -e "\033[0;34m[INFO]\033[0m $1"
+}
+
+log_error() {
+    echo -e "\033[0;31m[ERROR]\033[0m $1" >&2
+}
+
+log_success() {
+    echo -e "\033[0;32m[SUCCESS]\033[0m $1"
+}
+
+# --- Command Handlers ---
+
+handle_skill_create() {
+    local source_dir=""
+    
+    while [[ "$#" -gt 0 ]]; do
+        case $1 in
+            --source) source_dir="$2"; shift ;;
+            *) log_error "Unknown parameter: $1"; exit 1 ;;
+        esac
+        shift
+    done
+
+    if [[ -z "$source_dir" ]]; then
+        log_error "Missing --source <dir>"
+        exit 1
+    fi
+
+    if [[ ! -d "$source_dir" ]]; then
+        log_error "Source directory '$source_dir' does not exist or is not a directory."
+        exit 1
+    fi
+
+    # Normalize source path and get basename
+    local abs_source
+    abs_source=$(realpath "$source_dir")
+    local skill_name
+    skill_name=$(basename "$abs_source")
+    local target_dir="$SKILLS_DIR/$skill_name"
+
+    if [[ -e "$target_dir" ]]; then
+        log_error "Skill '$skill_name' already exists in global database at $target_dir"
+        exit 1
+    fi
+
+    log_info "Moving $abs_source to $target_dir..."
+    mv "$abs_source" "$target_dir"
+
+    echo -n "Do you want to replace the local directory with a symlink? [Y/n] "
+    read -r response
+    if [[ "$response" =~ ^[Yy]$ ]] || [[ -z "$response" ]]; then
+        ln -s "$target_dir" "$abs_source"
+        log_success "Symlink created: $abs_source -> $target_dir"
+    else
+        log_info "Skill moved to global DB, local directory removed."
+    fi
+}
+
+handle_skill_link() {
+    local skill_name="$1"
+    if [[ -z "$skill_name" ]]; then
+        log_error "Usage: agnman skill link <name>"
+        exit 1
+    fi
+
+    local target_dir="$SKILLS_DIR/$skill_name"
+    if [[ ! -d "$target_dir" ]]; then
+        log_error "Skill '$skill_name' does not exist in global database."
+        exit 1
+    fi
+
+    # Detect local agent directory
+    local agent_dirs=()
+    [[ -d ".agents" ]] && agent_dirs+=(".agents")
+    [[ -d ".claude" ]] && agent_dirs+=(".claude")
+
+    if [[ ${#agent_dirs[@]} -eq 0 ]]; then
+        log_error "No .agents or .claude directory detected in current path."
+        exit 1
+    fi
+
+    local selected_dir=""
+    if [[ ${#agent_dirs[@]} -eq 2 ]]; then
+        echo "Both .agents and .claude detected. Which one to link to?"
+        echo "1) .agents"
+        echo "2) .claude"
+        echo "3) both"
+        echo -n "Selection [1-3]: "
+        read -r choice
+        case "$choice" in
+            1) selected_dir=".agents" ;;
+            2) selected_dir=".claude" ;;
+            3) selected_dir="both" ;;
+            *) log_error "Invalid selection"; exit 1 ;;
+        esac
+    else
+        selected_dir="${agent_dirs[0]}"
+    fi
+
+    link_to() {
+        local base_dir="$1"
+        local link_path="$base_dir/skills/$skill_name"
+        mkdir -p "$base_dir/skills"
+        
+        if [[ -e "$link_path" ]]; then
+            log_error "File/folder already exists at $link_path. Overwrite? [y/N] "
+            read -r response
+            if [[ ! "$response" =~ ^[Yy]$ ]]; then
+                log_info "Skipping $link_path"
+                return
+            fi
+            rm -rf "$link_path"
+        fi
+
+        ln -s "$target_dir" "$link_path"
+        log_success "Linked $skill_name to $link_path"
+    }
+
+    if [[ "$selected_dir" == "both" ]]; then
+        link_to ".agents"
+        link_to ".claude"
+    else
+        link_to "$selected_dir"
+    fi
+}
+
+handle_rule_create() {
+    local source=""
+    
+    while [[ "$#" -gt 0 ]]; do
+        case $1 in
+            --source) source="$2"; shift ;;
+            *) log_error "Unknown parameter: $1"; exit 1 ;;
+        esac
+        shift
+    done
+
+    if [[ -z "$source" ]]; then
+        log_error "Missing --source <path>"
+        exit 1
+    fi
+
+    if [[ ! -e "$source" ]]; then
+        log_error "Source '$source' does not exist."
+        exit 1
+    fi
+
+    # Normalize source path and get basename
+    local abs_source
+    abs_source=$(realpath "$source")
+    local rule_name
+    rule_name=$(basename "$abs_source")
+    local target_path="$RULES_DIR/$rule_name"
+
+    if [[ -e "$target_path" ]]; then
+        log_error "Rule '$rule_name' already exists in global database at $target_path"
+        exit 1
+    fi
+
+    log_info "Moving $abs_source to $target_path..."
+    mv "$abs_source" "$target_path"
+
+    echo -n "Do you want to replace the local file/directory with a symlink? [Y/n] "
+    read -r response
+    if [[ "$response" =~ ^[Yy]$ ]] || [[ -z "$response" ]]; then
+        ln -s "$target_path" "$abs_source"
+        log_success "Symlink created: $abs_source -> $target_path"
+    else
+        log_info "Rule moved to global DB, local path removed."
+    fi
+}
+
+handle_rule_link() {
+    local rule_name="$1"
+    if [[ -z "$rule_name" ]]; then
+        log_error "Usage: agnman rule link <name>"
+        exit 1
+    fi
+
+    local target_path="$RULES_DIR/$rule_name"
+    if [[ ! -e "$target_path" ]]; then
+        log_error "Rule '$rule_name' does not exist in global database."
+        exit 1
+    fi
+
+    # Detect local agent directory
+    local agent_dirs=()
+    [[ -d ".agents" ]] && agent_dirs+=(".agents")
+    [[ -d ".claude" ]] && agent_dirs+=(".claude")
+
+    if [[ ${#agent_dirs[@]} -eq 0 ]]; then
+        log_error "No .agents or .claude directory detected in current path."
+        exit 1
+    fi
+
+    local selected_dir=""
+    if [[ ${#agent_dirs[@]} -eq 2 ]]; then
+        echo "Both .agents and .claude detected. Which one to link to?"
+        echo "1) .agents"
+        echo "2) .claude"
+        echo "3) both"
+        echo -n "Selection [1-3]: "
+        read -r choice
+        case "$choice" in
+            1) selected_dir=".agents" ;;
+            2) selected_dir=".claude" ;;
+            3) selected_dir="both" ;;
+            *) log_error "Invalid selection"; exit 1 ;;
+        esac
+    else
+        selected_dir="${agent_dirs[0]}"
+    fi
+
+    link_to() {
+        local base_dir="$1"
+        local link_path="$base_dir/rules/$rule_name"
+        mkdir -p "$base_dir/rules"
+        
+        if [[ -e "$link_path" ]]; then
+            log_error "File/folder already exists at $link_path. Overwrite? [y/N] "
+            read -r response
+            if [[ ! "$response" =~ ^[Yy]$ ]]; then
+                log_info "Skipping $link_path"
+                return
+            fi
+            rm -rf "$link_path"
+        fi
+
+        ln -s "$target_path" "$link_path"
+        log_success "Linked $rule_name to $link_path"
+    }
+
+    if [[ "$selected_dir" == "both" ]]; then
+        link_to ".agents"
+        link_to ".claude"
+    else
+        link_to "$selected_dir"
+    fi
+}
+
+handle_delete() {
+    local type="$1"
+    local name="$2"
+    if [[ -z "$name" ]]; then
+        log_error "Usage: agnman ${type} delete <name>"
+        exit 1
+    fi
+
+    local dir=""
+    if [[ "$type" == "skill" ]]; then
+        dir="$SKILLS_DIR"
+    else
+        dir="$RULES_DIR"
+    fi
+    local target="$dir/$name"
+
+    if [[ ! -e "$target" ]]; then
+        log_error "The specified ${type} '$name' does not exist in global database."
+        exit 1
+    fi
+
+    echo -n "Are you sure you want to delete the global ${type} '$name'? This cannot be undone. [y/N] "
+    read -r response
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        rm -rf "$target"
+        log_success "Global ${type} '$name' deleted."
+    else
+        log_info "Deletion cancelled."
+    fi
+}
+
+handle_edit() {
+    local type="$1"
+    local name="$2"
+    if [[ -z "$name" ]]; then
+        log_error "Usage: agnman ${type} edit <name>"
+        exit 1
+    fi
+
+    local dir=""
+    if [[ "$type" == "skill" ]]; then
+        dir="$SKILLS_DIR"
+    else
+        dir="$RULES_DIR"
+    fi
+    local target="$dir/$name"
+
+    if [[ ! -e "$target" ]]; then
+        log_error "The specified ${type} '$name' does not exist in global database."
+        exit 1
+    fi
+
+    # If it's a directory, try to find SKILL.md or similar
+    if [[ -d "$target" ]]; then
+        if [[ -f "$target/SKILL.md" ]]; then
+            target="$target/SKILL.md"
+        elif [[ -f "$target/README.md" ]]; then
+            target="$target/README.md"
+        fi
+    fi
+
+    local editor="${EDITOR:-vi}"
+    log_info "Opening $target with $editor..."
+    $editor "$target"
+}
+
+handle_list() {
+    local type="$1"
+    local dir=""
+    if [[ "$type" == "skill" ]]; then
+        dir="$SKILLS_DIR"
+    else
+        dir="$RULES_DIR"
+    fi
+
+    log_info "Global ${type}s registered in $dir:"
+    if [[ ! -d "$dir" ]] || [[ -z "$(ls -A "$dir")" ]]; then
+        echo "  (none)"
+    else
+        if command -v tree >/dev/null 2>&1; then
+            tree -C "$dir" | sed 's/^/  /'
+        else
+            # Simple fallback for tree-like view
+            ls -R "$dir" | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/  /'
+            # Actually, let's just use find for a cleaner look if tree is missing
+            find "$dir" -maxdepth 2 -not -path '*/.*' | sed "s|$dir/||" | grep -v "^$" | sed 's|[^/]*/|  |g' | sed 's|^|  - |'
+        fi
+    fi
+}
+
+# --- Main Entry Point ---
+
+if [[ $# -lt 2 ]]; then
+    echo "Usage: agnman {skill|rule} {create|link|list|edit|delete} [options]"
+    exit 1
+fi
+
+COMMAND=$1
+SUBCOMMAND=$2
+shift 2
+
+case "$COMMAND" in
+    skill)
+        case "$SUBCOMMAND" in
+            create) handle_skill_create "$@" ;;
+            link) handle_skill_link "$@" ;;
+            list) handle_list "skill" ;;
+            edit) handle_edit "skill" "$@" ;;
+            delete) handle_delete "skill" "$@" ;;
+            *) log_error "Unknown skill subcommand: $SUBCOMMAND"; exit 1 ;;
+        esac
+        ;;
+    rule)
+        case "$SUBCOMMAND" in
+            create) handle_rule_create "$@" ;;
+            link) handle_rule_link "$@" ;;
+            list) handle_list "rule" ;;
+            edit) handle_edit "rule" "$@" ;;
+            delete) handle_delete "rule" "$@" ;;
+            *) log_error "Unknown rule subcommand: $SUBCOMMAND"; exit 1 ;;
+        esac
+        ;;
+    *)
+        log_error "Unknown command: $COMMAND"
+        exit 1
+        ;;
+esac
