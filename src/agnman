@@ -416,7 +416,12 @@ handle_list() {
     if [[ "$tree_view" == true ]]; then
         if command -v tree >/dev/null 2>&1; then
             if [[ -n "$pattern" ]]; then
-                tree -C -P "*${pattern}*" "$dir" | sed 's/^/  /'
+                # Find matching top-level entries and run tree on each
+                for entry in "$dir"/*${pattern}*; do
+                    if [[ -e "$entry" ]]; then
+                        tree -C "$entry" | sed 's/^/  /'
+                    fi
+                done
             else
                 tree -C "$dir" | sed 's/^/  /'
             fi
@@ -431,6 +436,11 @@ handle_list() {
 }
 
 # --- Main Entry Point ---
+
+if [[ $# -eq 1 ]] && [[ "$1" == "--version" ]]; then
+    echo "agnman version 1.1.0 (debug-logs-fixed)"
+    exit 0
+fi
 
 if [[ $# -lt 2 ]]; then
     echo "Usage: agnman {skill|rule} {create|link|list|edit|delete} [options]"
@@ -447,7 +457,7 @@ case "$COMMAND" in
             create) handle_skill_create "$@" ;;
             link) handle_skill_link "$@" ;;
             unlink) handle_unlink "skill" "$@" ;;
-            list) handle_list "skill" ;;
+            list) handle_list "skill" "$@" ;;
             edit) handle_edit "skill" "$@" ;;
             delete) handle_delete "skill" "$@" ;;
             *) log_error "Unknown skill subcommand: $SUBCOMMAND"; exit 1 ;;
@@ -458,7 +468,7 @@ case "$COMMAND" in
             create) handle_rule_create "$@" ;;
             link) handle_rule_link "$@" ;;
             unlink) handle_unlink "rule" "$@" ;;
-            list) handle_list "rule" ;;
+            list) handle_list "rule" "$@" ;;
             edit) handle_edit "rule" "$@" ;;
             delete) handle_delete "rule" "$@" ;;
             *) log_error "Unknown rule subcommand: $SUBCOMMAND"; exit 1 ;;
