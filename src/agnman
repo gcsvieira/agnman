@@ -23,6 +23,38 @@ log_success() {
     echo -e "\033[0;32m[SUCCESS]\033[0m $1"
 }
 
+get_agent_dirs() {
+    local dirs=()
+    [[ -d ".agents" ]] && dirs+=(".agents")
+    [[ -d ".claude" ]] && dirs+=(".claude")
+    echo "${dirs[@]}"
+}
+
+select_agent_dir() {
+    local agent_dirs=($1)
+    if [[ ${#agent_dirs[@]} -eq 0 ]]; then
+        log_error "No .agents or .claude directory detected in current path."
+        exit 1
+    fi
+
+    if [[ ${#agent_dirs[@]} -eq 2 ]]; then
+        echo "Both .agents and .claude detected. Which one to target?"
+        echo "1) .agents"
+        echo "2) .claude"
+        echo "3) both"
+        echo -n "Selection [1-3]: "
+        read -r choice
+        case "$choice" in
+            1) echo ".agents" ;;
+            2) echo ".claude" ;;
+            3) echo "both" ;;
+            *) log_error "Invalid selection"; exit 1 ;;
+        esac
+    else
+        echo "${agent_dirs[0]}"
+    fi
+}
+
 # --- Command Handlers ---
 
 handle_skill_create() {
@@ -253,6 +285,45 @@ handle_rule_link() {
     fi
 }
 
+handle_unlink() {
+    local type="$1"
+    local name="$2"
+    if [[ -z "$name" ]]; then
+        log_error "Usage: agnman ${type} unlink <name>"
+        exit 1
+    fi
+
+    local type_plural="${type}s"
+    
+    # Detect local agent directory
+    local agent_dirs
+    agent_dirs=$(get_agent_dirs)
+    
+    local selected_dir
+    selected_dir=$(select_agent_dir "$agent_dirs")
+
+    unlink_from() {
+        local base_dir="$1"
+        local link_path="$base_dir/$type_plural/$name"
+        
+        if [[ -L "$link_path" ]]; then
+            rm "$link_path"
+            log_success "Unlinked ${type} '$name' from $link_path"
+        elif [[ -e "$link_path" ]]; then
+            log_error "$link_path exists but is not a symlink. Manual intervention required."
+        else
+            log_info "No link found at $link_path"
+        fi
+    }
+
+    if [[ "$selected_dir" == "both" ]]; then
+        unlink_from ".agents"
+        unlink_from ".claude"
+    else
+        unlink_from "$selected_dir"
+    fi
+}
+
 handle_delete() {
     local type="$1"
     local name="$2"
@@ -359,6 +430,7 @@ case "$COMMAND" in
         case "$SUBCOMMAND" in
             create) handle_skill_create "$@" ;;
             link) handle_skill_link "$@" ;;
+            unlink) handle_unlink "skill" "$@" ;;
             list) handle_list "skill" ;;
             edit) handle_edit "skill" "$@" ;;
             delete) handle_delete "skill" "$@" ;;
@@ -369,6 +441,7 @@ case "$COMMAND" in
         case "$SUBCOMMAND" in
             create) handle_rule_create "$@" ;;
             link) handle_rule_link "$@" ;;
+            unlink) handle_unlink "rule" "$@" ;;
             list) handle_list "rule" ;;
             edit) handle_edit "rule" "$@" ;;
             delete) handle_delete "rule" "$@" ;;

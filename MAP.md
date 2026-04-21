@@ -11,6 +11,7 @@ type: index
 
 ## Knowledge Base
 - [[cli-architecture]] - Argument parsing and path management.
+- [[installation]] - How to add agnman to your PATH.
 
 ## Tasks
 - [[task-skill-management]] - Moving and linking skills globally.

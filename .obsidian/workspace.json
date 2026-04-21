@@ -179,6 +179,9 @@
   "active": "99fed385c2ba24de",
   "lastOpenFiles": [
     "knowledge-base/task-skill-management.md",
-    "knowledge-base/task-database-management.md"
+    "knowledge-base/installation.md",
+    "knowledge-base/task-rule-management.md",
+    "knowledge-base/task-database-management.md",
+    "knowledge-base/cli-architecture.md"
   ]
 }

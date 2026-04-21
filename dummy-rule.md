@@ -1,1 +1,0 @@
-/home/glhrm/.local/share/agnman/rules/dummy-rule.md

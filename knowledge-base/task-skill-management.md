@@ -11,6 +11,7 @@ links: ["[[MAP]]", "[[cli-architecture]]"]
 ## Status
 - [x] Implement `skill create` to move local skills to global DB.
 - [x] Implement `skill link` to link global skills to projects.
+- [x] Implement `skill unlink` to remove local symlinks.
 - [x] Auto-detection of `.agents` and `.claude` directories.
 - [x] Symlink replacement and overwrite protection.
 - [x] Path normalization using `realpath`.
