@@ -18,7 +18,7 @@ run the bootstrap command directly:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/gcsvieira/agnman/master/setup.sh | bash
 ```
-*note: This will clone the repository to `~/.agnman` and link the CLI to your path.*
+*note: This will download the agnman script and link it to your path.*
 
 the setup was designed to be idempotent, meaning you can run it multiple times.
 
