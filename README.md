@@ -39,7 +39,7 @@ the setup was designed to be idempotent, meaning you can run it multiple times.
 ### typical workflow
 1.  create your skill or rule inside your current project (e.g., `.agents/skills/my-new-skill/`). add your `SKILL.md`, examples, and scripts.
 2.  once it's ready, run `agnman skill create --source .agents/skills/my-new-skill`. this moves it to your global database and replaces the local folder with a symlink.
-3.  in a different project, run `agnman skill link my-new-skill` to bring that capability into your project instantly.
+3.  in a different project, run `agnman skill link my-new-skill` to bring that capability into your project.
 
 ### skill management
 manage modular agent capabilities (skills).
